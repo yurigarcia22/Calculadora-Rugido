@@ -158,10 +158,13 @@
 
     .num { width: 120px; padding: 10px; text-align: center; font-weight: 700; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); }
     .num:focus { outline: none; border-color: var(--thumb); box-shadow: 0 0 0 3px rgba(163,230,53,.2); }
+    .num:disabled { opacity: .6; cursor: not-allowed; }
 
     .range { grid-column: 1 / -1; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 6px; background: var(--rail); }
     .range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--thumb); border: 4px solid var(--panel); box-shadow: 0 0 8px rgba(163,230,53,.5); transition: .15s; }
     .range:active::-webkit-slider-thumb { transform: scale(1.1); }
+    .range:disabled::-webkit-slider-thumb { background: var(--muted); }
+
 
     .check { display:flex; gap:8px; align-items:center; font-size: 13px; color: var(--muted); margin-top: 6px; }
     .check input { accent-color: var(--thumb); }
@@ -200,8 +203,8 @@
     .tab-content.active { display: block; }
 
     .kpi-dashboard {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
     }
     .kpi-card {
@@ -213,12 +216,10 @@
         flex-direction: column;
         gap: 4px;
         text-align: center;
-        flex-grow: 1;
-        flex-basis: 160px;
         overflow: hidden;
     }
     .kpi-card.main {
-        flex-basis: 100%;
+        grid-column: 1 / -1;
         background: linear-gradient(45deg, var(--accent), var(--accent-2));
         color: #022c22;
         justify-content: center;
@@ -287,7 +288,6 @@
           <span class="track"><span class="thumb"></span></span>
           <span>Claro</span>
         </label>
-        <button class="btn" id="saveScenario">Salvar cenário</button>
         <button class="btn" id="shareLink">Compartilhar link</button>
         <button class="btn warn" id="resetAll">Reset</button>
         <button class="btn primary" id="exportPNG">Exportar PNG</button>
@@ -301,20 +301,51 @@
         <div class="section-title">Entradas</div>
         <div class="section-sub">Ajuste os controles e veja os resultados em tempo real.</div>
 
+        <!-- Investimento -->
+        <div class="group">
+          <h4>Investimento</h4>
+
+          <div class="row">
+            <div class="lbl">Investimento em Mídia (R$)</div>
+            <input class="num" id="spendNum" type="number" min="0" max="10000000" step="100" value="89700" />
+            <input class="range" id="spendRange" type="range" min="0" max="200000" step="100" value="89700" />
+          </div>
+
+          <div class="row">
+            <div class="lbl">CPL (R$)</div>
+            <input class="num" id="cplNum" type="number" min="0" max="1000" step="1" value="21.04" />
+            <input class="range" id="cplRange" type="range" min="0" max="1000" step="1" value="21.04" />
+            <div class="check"><input id="cplAuto" type="checkbox" checked /> <label for="cplAuto">Calcular CPL automaticamente</label></div>
+            <p class="hint">Desmarque para digitar o CPL e calcular os leads.</p>
+          </div>
+
+          <div class="row">
+            <div class="lbl">Margem Bruta (%)</div>
+            <input class="num" id="marginNum" type="number" min="0" max="100" step="1" value="60" />
+            <input class="range" id="marginRange" type="range" min="0" max="100" step="1" value="60" />
+          </div>
+
+          <div class="row">
+            <div class="lbl">Custos Fixos (R$)</div>
+            <input class="num" id="fixedNum" type="number" min="0" max="1000000" step="1000" value="20000" />
+            <input class="range" id="fixedRange" type="range" min="0" max="100000" step="1000" value="20000" />
+          </div>
+        </div>
+        
         <!-- Demanda -->
         <div class="group">
           <h4>Demanda</h4>
 
           <div class="row">
             <div class="lbl">Leads</div>
-            <input class="num" id="leadsNum" type="number" min="0" max="100000" step="1" value="4263" />
-            <input class="range" id="leadsRange" type="range" min="0" max="100000" step="1" value="4263" />
+            <input class="num" id="leadsNum" type="number" min="0" max="100000" step="100" value="4263" />
+            <input class="range" id="leadsRange" type="range" min="0" max="10000" step="100" value="4263" />
           </div>
 
           <div class="row">
             <div class="lbl">Conversão (%)</div>
-            <input class="num" id="convNum" type="number" min="0" max="100" step="0.01" value="9.97" />
-            <input class="range" id="convRange" type="range" min="0" max="100" step="0.01" value="9.97" />
+            <input class="num" id="convNum" type="number" min="0" max="100" step="0.1" value="9.97" />
+            <input class="range" id="convRange" type="range" min="0" max="100" step="0.1" value="9.97" />
           </div>
 
           <div class="row">
@@ -322,8 +353,8 @@
               Vendas
               <span class="chip" title="Quando automático, Vendas = Leads × Conversão">auto</span>
             </div>
-            <input class="num" id="salesNum" type="number" min="0" max="100000" step="1" value="425" />
-            <input class="range" id="salesRange" type="range" min="0" max="100000" step="1" value="425" />
+            <input class="num" id="salesNum" type="number" min="0" max="10000" step="10" value="425" />
+            <input class="range" id="salesRange" type="range" min="0" max="1000" step="10" value="425" />
             <div class="check"><input id="salesAuto" type="checkbox" checked /> <label for="salesAuto">Calcular vendas automaticamente</label></div>
           </div>
         </div>
@@ -334,8 +365,8 @@
 
           <div class="row">
             <div class="lbl">Ticket Médio (R$)</div>
-            <input class="num" id="ticketNum" type="number" min="0" max="100000" step="10" value="3760" />
-            <input class="range" id="ticketRange" type="range" min="0" max="100000" step="10" value="3760" />
+            <input class="num" id="ticketNum" type="number" min="0" max="100000" step="100" value="3760" />
+            <input class="range" id="ticketRange" type="range" min="0" max="10000" step="100" value="3760" />
           </div>
 
           <div class="row">
@@ -350,56 +381,19 @@
           <div class="row">
             <div class="lbl">
               Cancelamentos/Devoluções (%)
-              <span class="chip" title="Percentual de vendas perdidas após a compra (chargeback, devolução, etc.).">ajuda</span>
             </div>
-            <input class="num" id="cancelNum" type="number" min="0" max="100" step="0.1" value="0" />
-            <input class="range" id="cancelRange" type="range" min="0" max="100" step="0.1" value="0" />
+            <input class="num" id="cancelNum" type="number" min="0" max="100" step="1" value="0" />
+            <input class="range" id="cancelRange" type="range" min="0" max="100" step="1" value="0" />
           </div>
         </div>
-
-        <!-- Custos -->
-        <div class="group">
-          <h4>Custos</h4>
-
-          <div class="row">
-            <div class="lbl">Investimento em Mídia (R$)</div>
-            <input class="num" id="spendNum" type="number" min="0" max="10000000" step="100" value="89700" />
-            <input class="range" id="spendRange" type="range" min="0" max="10000000" step="100" value="89700" />
-          </div>
-
-          <div class="row">
-            <div class="lbl">CPL (R$)</div>
-            <input class="num" id="cplNum" type="number" min="0" max="100000" step="0.01" value="21.04" />
-            <input class="range" id="cplRange" type="range" min="0" max="100000" step="0.01" value="21.04" />
-            <div class="check"><input id="cplAuto" type="checkbox" checked /> <label for="cplAuto">Calcular CPL automaticamente (Mídia ÷ Leads)</label></div>
-          </div>
-
-          <div class="row">
-            <div class="lbl">Margem Bruta (%)</div>
-            <input class="num" id="marginNum" type="number" min="0" max="100" step="0.1" value="60" />
-            <input class="range" id="marginRange" type="range" min="0" max="100" step="0.1" value="60" />
-          </div>
-
-          <div class="row">
-            <div class="lbl">Custos Fixos (R$)</div>
-            <input class="num" id="fixedNum" type="number" min="0" max="100000000" step="100" value="20000" />
-            <input class="range" id="fixedRange" type="range" min="0" max="100000000" step="100" value="20000" />
-          </div>
-        </div>
-
+        
         <!-- Metas -->
         <div class="group">
           <h4>Metas</h4>
           <div class="row">
             <div class="lbl">Faturamento Meta (R$)</div>
-            <input class="num" id="targetRevenueNum" type="number" min="0" max="50000000" step="1000" value="2000000" />
-            <input class="range" id="targetRevenueRange" type="range" min="0" max="50000000" step="1000" value="2000000" />
-          </div>
-          <div class="row">
-            <div class="lbl">Lucro Líquido Alvo (R$)</div>
-            <input class="num" id="targetProfitNum" type="number" min="-100000000" max="100000000" step="100" value="0" />
-            <input class="range" id="targetProfitRange" type="range" min="-1000000" max="1000000" step="100" value="0" />
-            <p class="hint">Calculamos os <b>leads necessários</b> para atingir essa meta de lucro.</p>
+            <input class="num" id="targetRevenueNum" type="number" min="0" max="50000000" step="10000" value="2000000" />
+            <input class="range" id="targetRevenueRange" type="range" min="0" max="5000000" step="10000" value="2000000" />
           </div>
         </div>
       </div>
@@ -463,10 +457,6 @@
               <div class="label">Breakeven Vendas</div>
               <div id="kpiBreakevenSales" class="value">0</div>
             </div>
-            <div class="kpi-card">
-              <div class="label">Leads p/ Meta</div>
-              <div id="kpiLeadsTarget" class="value">0</div>
-            </div>
           </div>
         </div>
 
@@ -522,7 +512,6 @@
       marginNum: byId('marginNum'), marginRange: byId('marginRange'),
       fixedNum: byId('fixedNum'), fixedRange: byId('fixedRange'),
       targetRevenueNum: byId('targetRevenueNum'), targetRevenueRange: byId('targetRevenueRange'),
-      targetProfitNum: byId('targetProfitNum'), targetProfitRange: byId('targetProfitRange'),
     };
 
     // KPIs
@@ -540,7 +529,6 @@
       net: byId('kpiNet'),
       beRev: byId('kpiBreakevenRev'),
       beSales: byId('kpiBreakevenSales'),
-      leadsTarget: byId('kpiLeadsTarget'),
     };
 
     // Theme
@@ -573,13 +561,27 @@
     // STATE & CALC
     // =========================
     function readState() {
-      const leads = +inputs.leadsNum.value || 0;
+      const spend = +inputs.spendNum.value || 0;
+      const cplAuto = inputs.cplAuto.checked;
+      let leads, cpl;
+
+      if (cplAuto) {
+        leads = +inputs.leadsNum.value || 0;
+        cpl = leads > 0 ? spend / leads : 0;
+        inputs.cplNum.value = cpl.toFixed(2);
+        inputs.cplRange.value = cpl.toFixed(2);
+      } else {
+        cpl = +inputs.cplNum.value || 0;
+        leads = cpl > 0 ? spend / cpl : 0;
+        inputs.leadsNum.value = leads.toFixed(0);
+        inputs.leadsRange.value = leads.toFixed(0);
+      }
+
       const conv = clamp(+inputs.convNum.value || 0, 0, 100);
       const salesAuto = inputs.salesAuto.checked;
       const salesManual = +inputs.salesNum.value || 0;
 
       let sales = salesAuto ? leads * (conv / 100) : salesManual;
-      // Sync ranges
       if(inputs.salesAuto.checked) {
         inputs.salesRange.value = sales.toFixed(0);
         inputs.salesNum.value = sales.toFixed(0);
@@ -589,61 +591,37 @@
         inputs.convRange.value = newConv.toFixed(2);
       }
 
-
       const ticket = +inputs.ticketNum.value || 0;
       const ltv = clamp(+inputs.ltvNum.value || 1, 1, 60);
       const cancelPct = clamp(+inputs.cancelNum.value || 0, 0, 100);
-
-      const spend = +inputs.spendNum.value || 0;
-
-      let cpl = +inputs.cplNum.value || 0;
-      if (inputs.cplAuto.checked) {
-        cpl = leads > 0 ? spend / leads : 0;
-        inputs.cplNum.value = cpl.toFixed(2);
-        inputs.cplRange.value = cpl.toFixed(2);
-      }
-
       const marginPct = clamp(+inputs.marginNum.value || 0, 0, 100);
       const fixed = +inputs.fixedNum.value || 0;
       const targetRevenue = +inputs.targetRevenueNum.value || 0;
-      const targetProfit = +inputs.targetProfitNum.value || 0;
-
       const effectiveSales = sales * (1 - cancelPct / 100);
       const revenue = effectiveSales * ticket * ltv;
-
       const roas = spend > 0 ? revenue / spend : 0;
       const roiPct = spend > 0 ? ((revenue - spend) / spend) * 100 : 0;
-
       const grossProfit = revenue * (marginPct / 100);
       const netProfit = grossProfit - spend - fixed;
-
       const beRevenue = (spend + fixed) / (marginPct / 100 || 1);
       const beSales = ticket * ltv > 0 ? beRevenue / (ticket * ltv) : 0;
 
-      const convFactor = (conv / 100) * (1 - cancelPct / 100);
-      const denom = (marginPct / 100) * ticket * ltv * (convFactor || 0);
-      const leadsForTarget = denom > 0 ? (targetProfit + spend + fixed) / denom : Infinity;
-
       return {
         leads, conv, sales, ticket, ltv, cancelPct, spend, cpl, marginPct, fixed, targetRevenue,
-        revenue, roas, roiPct, grossProfit, netProfit, beRevenue, beSales, targetProfit, leadsForTarget
+        revenue, roas, roiPct, grossProfit, netProfit, beRevenue, beSales
       };
     }
 
     function updateUI(s) {
-      // Basics
       KPIs.revenue.textContent = fmtBRL(s.revenue);
       KPIs.sales.textContent = Math.round(s.sales).toLocaleString('pt-BR');
       KPIs.leads.textContent = Math.round(s.leads).toLocaleString('pt-BR');
 
-      // Meta
       const targetPct = s.targetRevenue > 0 ? (s.revenue / s.targetRevenue) * 100 : 0;
       KPIs.targetPct.textContent = fmtPct(targetPct);
       KPIs.targetPct.parentElement.classList.toggle('pos', targetPct >= 100);
       KPIs.targetPct.parentElement.classList.toggle('neg', targetPct < 100);
 
-
-      // Unit economics
       KPIs.cpl.textContent = fmtBRL(s.cpl);
       const cpa = s.sales > 0 ? s.spend / s.sales : 0;
       KPIs.cpa.textContent = fmtBRL(cpa);
@@ -652,21 +630,14 @@
       KPIs.roasMain.textContent = roasText;
       KPIs.roi.textContent = fmtPct(s.roiPct);
 
-      // Profits
       KPIs.gross.textContent = fmtBRL(s.grossProfit);
       KPIs.net.textContent = fmtBRL(s.netProfit);
       KPIs.net.parentElement.classList.toggle('pos', s.netProfit >= 0);
       KPIs.net.parentElement.classList.toggle('neg', s.netProfit < 0);
 
-      // Breakeven
       KPIs.beRev.textContent = fmtBRL(s.beRevenue);
       KPIs.beSales.textContent = Math.ceil(s.beSales).toLocaleString('pt-BR');
 
-      // Leads for target
-      const leadsTarget = Math.max(0, Math.ceil(s.leadsForTarget));
-      KPIs.leadsTarget.textContent = isFinite(leadsTarget) ? leadsTarget.toLocaleString('pt-BR') : '—';
-
-      // Charts & Sensi
       renderCharts(s);
       renderSensitivity(s);
     }
@@ -675,7 +646,7 @@
     // SYNC INPUTS
     // =========================
     function bindPair(numEl, rangeEl, cb) {
-      const sync = () => { if(parseFloat(numEl.value) > parseFloat(rangeEl.max)) numEl.value = rangeEl.max; rangeEl.value = numEl.value; cb(); };
+      const sync = () => { if(parseFloat(numEl.value) > parseFloat(numEl.max)) numEl.value = rangeEl.max; rangeEl.value = numEl.value; cb(); };
       const syncR = () => { numEl.value = rangeEl.value; cb(); };
 
       numEl.addEventListener('input', sync);
@@ -694,7 +665,6 @@
       ['marginNum','marginRange'],
       ['fixedNum','fixedRange'],
       ['targetRevenueNum', 'targetRevenueRange'],
-      ['targetProfitNum','targetProfitRange'],
     ].forEach(([n, r]) => bindPair(inputs[n], inputs[r], onChange));
 
     inputs.salesAuto.addEventListener('change', () => {
@@ -704,8 +674,11 @@
     });
 
     inputs.cplAuto.addEventListener('change', () => {
-      inputs.cplNum.disabled = inputs.cplAuto.checked;
-      inputs.cplRange.disabled = inputs.cplAuto.checked;
+      const isAuto = inputs.cplAuto.checked;
+      inputs.cplNum.disabled = isAuto;
+      inputs.cplRange.disabled = isAuto;
+      inputs.leadsNum.disabled = !isAuto;
+      inputs.leadsRange.disabled = !isAuto;
       onChange();
     });
 
@@ -827,7 +800,7 @@
     }
 
     function stepsAround(base, count, min, max) {
-      const deltas = [-0.2, -0.1, 0, 0.1, 0.2];
+      const deltas = [0, 0.1, 0.2, 0.3, 0.4];
       return deltas.slice(0, count).map(d => clamp(base * (1 + d), min, max));
     }
 
@@ -842,7 +815,6 @@
     // ACTIONS
     // =========================
     byId('resetAll').addEventListener('click', () => {
-      // Zerar todos os campos numéricos
       inputs.leadsNum.value = inputs.leadsRange.value = 0;
       inputs.convNum.value = inputs.convRange.value = 0;
       inputs.ticketNum.value = inputs.ticketRange.value = 0;
@@ -851,32 +823,13 @@
       inputs.marginNum.value = inputs.marginRange.value = 0;
       inputs.fixedNum.value = inputs.fixedRange.value = 0;
       inputs.targetRevenueNum.value = inputs.targetRevenueRange.value = 0;
-      inputs.targetProfitNum.value = inputs.targetProfitRange.value = 0;
-      
-      // LTV (Lifetime Value) começa em 1, pois é um multiplicador
       inputs.ltvNum.value = inputs.ltvRange.value = 1;
 
-      // Resetar checkboxes e campos automáticos
       inputs.salesAuto.checked = true;
-      inputs.salesNum.disabled = true; 
-      inputs.salesRange.disabled = true;
-      
       inputs.cplAuto.checked = true;
-      inputs.cplNum.disabled = true; 
-      inputs.cplRange.disabled = true;
 
-      // Disparar a atualização da UI
+      setInitialDisabledStates();
       onChange();
-    });
-
-    // Save/Load scenarios (localStorage)
-    byId('saveScenario').addEventListener('click', () => {
-      const name = prompt('Nome do cenário para salvar:');
-      if (!name) return;
-      localStorage.setItem('ng_calc_scenario_' + name, JSON.stringify({
-        inputs: snapshotInputs(), theme: document.documentElement.getAttribute('data-theme')
-      }));
-      alert('Cenário salvo: ' + name);
     });
 
     function snapshotInputs() {
@@ -887,31 +840,23 @@
         spend: +inputs.spendNum.value, cplAuto: inputs.cplAuto.checked, cpl: +inputs.cplNum.value,
         margin: +inputs.marginNum.value, fixed: +inputs.fixedNum.value,
         targetRevenue: +inputs.targetRevenueNum.value,
-        targetProfit: +inputs.targetProfitNum.value
       };
     }
+
     function restoreInputs(i) {
       inputs.leadsNum.value = inputs.leadsRange.value = i.leads ?? 0;
       inputs.convNum.value = inputs.convRange.value = i.conv ?? 0;
-
       inputs.salesAuto.checked = !!i.salesAuto;
-      inputs.salesNum.disabled = inputs.salesRange.disabled = inputs.salesAuto.checked;
       inputs.salesNum.value = inputs.salesRange.value = i.sales ?? 0;
-
       inputs.ticketNum.value = inputs.ticketRange.value = i.ticket ?? 0;
       inputs.ltvNum.value = inputs.ltvRange.value = i.ltv ?? 1;
       inputs.cancelNum.value = inputs.cancelRange.value = i.cancel ?? 0;
-
       inputs.spendNum.value = inputs.spendRange.value = i.spend ?? 0;
-
       inputs.cplAuto.checked = !!i.cplAuto;
-      inputs.cplNum.disabled = inputs.cplRange.disabled = inputs.cplAuto.checked;
       inputs.cplNum.value = inputs.cplRange.value = i.cpl ?? 0;
-
       inputs.marginNum.value = inputs.marginRange.value = i.margin ?? 0;
       inputs.fixedNum.value = inputs.fixedRange.value = i.fixed ?? 0;
       inputs.targetRevenueNum.value = inputs.targetRevenueRange.value = i.targetRevenue ?? 0;
-      inputs.targetProfitNum.value = inputs.targetProfitRange.value = i.targetProfit ?? 0;
     }
 
     // Share link (querystring)
@@ -927,7 +872,6 @@
         const nodeToCapture = byId('mainGrid');
         document.body.classList.add('is-exporting');
 
-        // Create overlays for input values
         const numInputs = nodeToCapture.querySelectorAll('.num');
         numInputs.forEach(input => {
             const overlay = document.createElement('div');
@@ -936,33 +880,20 @@
             
             const styles = getComputedStyle(input);
             Object.assign(overlay.style, {
-                position: 'absolute',
-                top: `${input.offsetTop}px`,
-                left: `${input.offsetLeft}px`,
-                width: `${input.offsetWidth}px`,
-                height: `${input.offsetHeight}px`,
-                color: styles.color,
-                background: styles.background,
-                font: styles.font,
-                textAlign: styles.textAlign,
-                padding: styles.padding,
-                boxSizing: 'border-box',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: '10',
+                position: 'absolute', top: `${input.offsetTop}px`, left: `${input.offsetLeft}px`,
+                width: `${input.offsetWidth}px`, height: `${input.offsetHeight}px`,
+                color: styles.color, background: styles.background, font: styles.font,
+                textAlign: styles.textAlign, padding: styles.padding, boxSizing: 'border-box',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: '10',
             });
-            
             input.parentElement.appendChild(overlay);
         });
 
-
         try {
-            await new Promise(resolve => setTimeout(resolve, 100)); // Delay for styles to apply
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             const canvas = await html2canvas(nodeToCapture, { 
-                scale: 2,
-                useCORS: true,
+                scale: 2, useCORS: true,
             });
             
             const a = document.createElement('a');
@@ -989,14 +920,30 @@
         cancel: +q.get('cancel'), spend: +q.get('spend'), cplAuto: q.get('cplAuto') === 'true',
         cpl: +q.get('cpl'), margin: +q.get('margin'), fixed: +q.get('fixed'),
         targetRevenue: +q.get('targetRevenue'),
-        targetProfit: +q.get('targetProfit'),
       };
       restoreInputs(i);
+    }
+    
+    function setInitialDisabledStates(){
+        inputs.salesNum.disabled = inputs.salesAuto.checked;
+        inputs.salesRange.disabled = inputs.salesAuto.checked;
+        inputs.cplNum.disabled = inputs.cplAuto.checked;
+        inputs.cplRange.disabled = inputs.cplAuto.checked;
+        inputs.leadsNum.disabled = !inputs.cplAuto.checked;
+        inputs.leadsRange.disabled = !inputs.cplAuto.checked;
     }
 
     // INIT
     applyQuery();
+    setInitialDisabledStates();
     onChange();
+
+    // Reduz a sensibilidade do scroll nos campos numéricos
+    document.querySelectorAll('.num').forEach(input => {
+        input.addEventListener('wheel', (e) => {
+            e.preventDefault();
+        });
+    });
   </script>
 </body>
 </html>
