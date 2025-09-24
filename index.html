@@ -446,7 +446,7 @@
               <div id="kpiGross" class="value">R$ 0,00</div>
             </div>
             <div class="kpi-card">
-              <div class="label">Lucro Líquido</div>
+              <div id="kpiNetLabel" class="label">Lucro Líquido</div>
               <div id="kpiNet" class="value">R$ 0,00</div>
             </div>
             <div class="kpi-card">
@@ -476,6 +476,12 @@
               <h5>Simulador de Sensibilidade — Faturamento por Ticket × Conversão</h5>
               <div id="sensiWrap" style="padding: 8px 8px 14px 8px;">
                 <table id="sensiTable"></table>
+              </div>
+            </div>
+            <div class="card sensi" style="margin-top: 16px;">
+              <h5>Simulador de Sensibilidade — Lucro Líquido por Ticket × Conversão</h5>
+              <div id="sensiWrapNet" style="padding: 8px 8px 14px 8px;">
+                <table id="sensiTableNetProfit"></table>
               </div>
             </div>
         </div>
@@ -527,6 +533,7 @@
       roi: byId('kpiROI'),
       gross: byId('kpiGross'),
       net: byId('kpiNet'),
+      netLabel: byId('kpiNetLabel'),
       beRev: byId('kpiBreakevenRev'),
       beSales: byId('kpiBreakevenSales'),
     };
@@ -631,7 +638,14 @@
       KPIs.roi.textContent = fmtPct(s.roiPct);
 
       KPIs.gross.textContent = fmtBRL(s.grossProfit);
-      KPIs.net.textContent = fmtBRL(s.netProfit);
+      
+      if (s.netProfit >= 0) {
+        KPIs.netLabel.textContent = 'Lucro Líquido';
+        KPIs.net.textContent = fmtBRL(s.netProfit);
+      } else {
+        KPIs.netLabel.textContent = 'Prejuízo';
+        KPIs.net.textContent = fmtBRL(Math.abs(s.netProfit));
+      }
       KPIs.net.parentElement.classList.toggle('pos', s.netProfit >= 0);
       KPIs.net.parentElement.classList.toggle('neg', s.netProfit < 0);
 
@@ -640,13 +654,18 @@
 
       renderCharts(s);
       renderSensitivity(s);
+      renderNetProfitSensitivity(s);
     }
 
     // =========================
     // SYNC INPUTS
     // =========================
     function bindPair(numEl, rangeEl, cb) {
-      const sync = () => { if(parseFloat(numEl.value) > parseFloat(numEl.max)) numEl.value = rangeEl.max; rangeEl.value = numEl.value; cb(); };
+      const sync = () => { 
+        if (parseFloat(numEl.value) > parseFloat(numEl.max)) numEl.value = numEl.max;
+        rangeEl.value = clamp(parseFloat(numEl.value), parseFloat(rangeEl.min), parseFloat(rangeEl.max));
+        cb(); 
+      };
       const syncR = () => { numEl.value = rangeEl.value; cb(); };
 
       numEl.addEventListener('input', sync);
@@ -799,6 +818,33 @@
       table.innerHTML = thead + rows;
     }
 
+    function renderNetProfitSensitivity(s) {
+      const table = byId('sensiTableNetProfit');
+      if (!table) return;
+      const convBase = s.conv;
+      const ticketBase = s.ticket;
+
+      const convSteps = stepsAround(convBase, 5, 0, 100);
+      const ticketSteps = stepsAround(ticketBase, 5, 0, 1e9);
+
+      let thead = '<tr><th>Conv. \\ Ticket</th>';
+      ticketSteps.forEach(t => { thead += `<th>${fmtBRL(t)}</th>`; });
+      thead += '</tr>';
+
+      let rows = '';
+      convSteps.forEach(cv => {
+        rows += `<tr><th>${cv.toFixed(2).replace('.',',')}%</th>`;
+        ticketSteps.forEach(tk => {
+          const netProfit = simulateNetProfit({ ...s }, cv, tk);
+          const cls = netProfit >= 0 ? 'good' : 'bad';
+          rows += `<td class="${cls}">${fmtBRL(netProfit)}</td>`;
+        });
+        rows += '</tr>';
+      });
+
+      table.innerHTML = thead + rows;
+    }
+
     function stepsAround(base, count, min, max) {
       const deltas = [0, 0.1, 0.2, 0.3, 0.4];
       return deltas.slice(0, count).map(d => clamp(base * (1 + d), min, max));
@@ -810,6 +856,14 @@
       const revenue = sales * ticketVal * state.ltv;
       return revenue;
     }
+    
+    function simulateNetProfit(state, convPct, ticketVal) {
+        const revenue = simulateRevenue(state, convPct, ticketVal);
+        const grossProfit = revenue * (state.marginPct / 100);
+        const netProfit = grossProfit - state.spend - state.fixed;
+        return netProfit;
+    }
+
 
     // =========================
     // ACTIONS
